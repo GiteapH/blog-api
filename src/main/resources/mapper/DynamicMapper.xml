@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.DynamicMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.Dynamic">
+    <id column="did" jdbcType="INTEGER" property="did" />
+    <result column="d_uid" jdbcType="INTEGER" property="dUid" />
+    <result column="d_src" jdbcType="VARCHAR" property="dSrc" />
+    <result column="d_aid" jdbcType="INTEGER" property="dAid" />
+    <result column="d_date" jdbcType="TIMESTAMP" property="dDate" />
+    <result column="d_type" jdbcType="INTEGER" property="dType" />
+    <result column="comments" jdbcType="INTEGER" property="comments"/>
+    <result column="share" jdbcType="INTEGER" property="share"/>
+    <result column="response_type" jdbcType="INTEGER" property="responseType" />
+    <result column="topic_id" jdbcType="INTEGER" property="topicId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.springboot.blog.entity.Dynamic">
+    <result column="d_content" jdbcType="LONGVARCHAR" property="dContent" />
+  </resultMap>
+
+  <resultMap id="DynamicAndUser" extends="ResultMapWithBLOBs" type="cn.springboot.blog.entity.DynamicAndUser">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="email" jdbcType="VARCHAR" property="email" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="head" jdbcType="VARCHAR" property="head" />
+    <result column="cardImg" jdbcType="VARCHAR" property="cardimg" />
+    <result column="lockedFlag" jdbcType="TINYINT" property="lockedflag" />
+    <result column="isDeleted" jdbcType="TINYINT" property="isdeleted" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    did, d_uid, d_src, d_aid, d_date, d_type,comments,share,response_type
+  </sql>
+  <sql id="Blob_Column_List">
+    d_content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from dynamic
+    where did = #{did,jdbcType=INTEGER}
+  </select>
+    <select id="selectAllByDUid" resultMap="DynamicAndUser">
+      select * from dynamic
+      inner join users on users.id = dynamic.d_uid
+      where True
+      <if test="uid!=null">
+        and d_uid = #{uid}
+      </if>
+      <if test="type!=-1">
+        and d_type = #{type}
+      </if>
+      order by d_date desc
+
+      limit #{start},#{limit}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from dynamic
+    where did = #{did,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.Dynamic">
+    insert into dynamic (did, d_uid, d_src, 
+      d_aid, d_date, d_type, 
+      d_content)
+    values (#{did,jdbcType=INTEGER}, #{dUid,jdbcType=INTEGER}, #{dSrc,jdbcType=VARCHAR}, 
+      #{dAid,jdbcType=INTEGER}, #{dDate,jdbcType=TIMESTAMP}, #{dType,jdbcType=INTEGER}, 
+      #{dContent,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.Dynamic"  keyProperty="did" useGeneratedKeys="true">
+    insert into dynamic
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="did != null">
+        did,
+      </if>
+      <if test="dUid != null">
+        d_uid,
+      </if>
+      <if test="dSrc != null">
+        d_src,
+      </if>
+      <if test="dAid != null">
+        d_aid,
+      </if>
+      <if test="dDate != null">
+        d_date,
+      </if>
+      <if test="dType != null">
+        d_type,
+      </if>
+      <if test="dContent != null">
+        d_content,
+      </if>
+      <if test="topicId != null">
+        topic_id,
+      </if>
+      <if test="responseType != null">
+        response_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="did != null">
+        #{did,jdbcType=INTEGER},
+      </if>
+      <if test="dUid != null">
+        #{dUid,jdbcType=INTEGER},
+      </if>
+      <if test="dSrc != null">
+        #{dSrc,jdbcType=VARCHAR},
+      </if>
+      <if test="dAid != null">
+        #{dAid,jdbcType=INTEGER},
+      </if>
+      <if test="dDate != null">
+        #{dDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dType != null">
+        #{dType,jdbcType=INTEGER},
+      </if>
+      <if test="dContent != null">
+        #{dContent},
+      </if>
+      <if test="topicId != null">
+        #{topicId},
+      </if>
+      <if test="responseType != null">
+        #{responseType},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.Dynamic">
+    update dynamic
+    <set>
+      <if test="dUid != null">
+        d_uid = #{dUid,jdbcType=INTEGER},
+      </if>
+      <if test="dSrc != null">
+        d_src = #{dSrc,jdbcType=VARCHAR},
+      </if>
+      <if test="dAid != null">
+        d_aid = #{dAid,jdbcType=INTEGER},
+      </if>
+      <if test="dDate != null">
+        d_date = #{dDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dType != null">
+        d_type = #{dType,jdbcType=INTEGER},
+      </if>
+      <if test="dContent != null">
+        d_content = #{dContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="comments != null">
+        comments = comments + #{comments}
+      </if>
+      <if test="share != null">
+        share = share + #{share}
+      </if>
+      <if test="topicId != null">
+        topic_id = #{topicId},
+      </if>
+      <if test="responseType != null">
+        response_type = #{responseType},
+      </if>
+    </set>
+    where did = #{did,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.springboot.blog.entity.Dynamic">
+    update dynamic
+    set d_uid = #{dUid,jdbcType=INTEGER},
+      d_src = #{dSrc,jdbcType=VARCHAR},
+      d_aid = #{dAid,jdbcType=INTEGER},
+      d_date = #{dDate,jdbcType=TIMESTAMP},
+      d_type = #{dType,jdbcType=INTEGER},
+      d_content = #{dContent,jdbcType=LONGVARCHAR}
+    where did = #{did,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.Dynamic">
+    update dynamic
+    set d_uid = #{dUid,jdbcType=INTEGER},
+      d_src = #{dSrc,jdbcType=VARCHAR},
+      d_aid = #{dAid,jdbcType=INTEGER},
+      d_date = #{dDate,jdbcType=TIMESTAMP},
+      d_type = #{dType,jdbcType=INTEGER}
+    where did = #{did,jdbcType=INTEGER}
+  </update>
+</mapper>

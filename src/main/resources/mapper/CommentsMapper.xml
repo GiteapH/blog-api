@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.CommentsMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.Comments">
+    <id column="cid" jdbcType="INTEGER" property="cid" />
+    <result column="aid" jdbcType="INTEGER" property="aid" />
+    <result column="from_uid" jdbcType="INTEGER" property="fromUid" />
+    <result column="to_uid" jdbcType="INTEGER" property="toUid" />
+    <result column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="precid" jdbcType="INTEGER" property="precid" />
+    <result column="replay_cid" jdbcType="INTEGER" property="replayCid" />
+    <result column="c_type" jdbcType="INTEGER" property="cType" />
+  </resultMap>
+  <resultMap id="UserAndComment" type="cn.springboot.blog.entity.CommentAndUser" extends="BaseResultMap">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="good_uid" jdbcType="INTEGER" property="goodUid" />
+    <id column="email" jdbcType="VARCHAR" property="email" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="head" jdbcType="VARCHAR" property="head" />
+    <result column="cardImg" jdbcType="VARCHAR" property="cardimg" />
+    <result column="lockedFlag" jdbcType="TINYINT" property="lockedflag" />
+    <result column="isDeleted" jdbcType="TINYINT" property="isdeleted" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+    <result column="time" jdbcType="TIMESTAMP" property="time" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="good_cid" jdbcType="INTEGER" property="goodCid" />
+    <result column="good_aid" jdbcType="INTEGER" property="goodAid" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.springboot.blog.entity.Comments">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    cid, aid, `from_uid`, `to_uid`, date, precid,replay_cid,c_type
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <sql id="User_Column">
+      id, email, userName, head, lockedFlag, isDeleted, createTime
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="UserAndComment">
+    select 
+    *
+    from comments
+    inner join users on users.id = comments.from_uid
+    where cid = #{cid,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectAllByAidAndUid" resultMap="UserAndComment">
+    SELECT
+    *
+    from comments
+    inner join users on users. id = comments.from_uid
+    left join good_points on good_points.good_id = comments.cid and good_points.table_type=1
+    where
+    comments.aid = #{aid} AND comments.c_type = #{cType}
+    <if test="orderColumn == 1">
+      AND ( ( table_type = 1 AND type = 0 ) OR ( type is null AND table_type is null ) )
+      GROUP BY
+      good_id
+      ORDER BY
+      COUNT( good_id ) DESC
+    </if>
+    <if test="orderColumn == 0">
+      ORDER BY date desc
+    </if>
+  </select>
+  <select id="selectAllByPrimaryKeyAnd" resultMap="UserAndComment">
+    SELECT
+    *
+    from comments
+    inner join users on users. id = comments.from_uid
+    left join good_points on good_points.good_id = comments.cid and good_points.table_type=#{cType}
+    where comments.aid = #{aid} AND (comments.precid=#{cid} || comments.cid=#{cid}) AND comments.c_type=#{cType}
+<!--    (comments.uid=#{uid} AND comments.aid = #{aid}) AND (comments.from_uid=#{rootUid} OR comments.to_uid = #{answerUid}-->
+<!--    OR comments.from_uid=#{answerUid} OR comments.to_uid = #{rootUid}) AND comments.precid = #{cid}-->
+    ORDER BY date
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from comments
+    where cid = #{cid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.Comments">
+    insert into comments (cid, aid,
+      from_uid, to_uid, date, 
+      precid, content
+      )
+    values (#{cid,jdbcType=INTEGER},  #{aid,jdbcType=INTEGER},
+      #{fromUid,jdbcType=INTEGER}, #{toUid,jdbcType=INTEGER}, #{date,jdbcType=TIMESTAMP}, 
+      #{precid,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.Comments">
+    insert into comments
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="cid != null">
+        cid,
+      </if>
+      <if test="aid != null">
+        aid,
+      </if>
+      <if test="fromUid != null">
+        from_uid,
+      </if>
+      <if test="toUid != null">
+        to_uid,
+      </if>
+      <if test="date != null">
+        date,
+      </if>
+      <if test="precid != null">
+        precid,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="cType != null">
+        c_type,
+      </if>
+      <if test="replayCid != null">
+        replay_cid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="cid != null">
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null">
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="fromUid != null">
+        #{fromUid,jdbcType=INTEGER},
+      </if>
+      <if test="toUid != null">
+        #{toUid,jdbcType=INTEGER},
+      </if>
+      <if test="date != null">
+        #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="precid != null">
+        #{precid,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="cType != null">
+        #{cType},
+      </if>
+      <if test="replayCid != null">
+        #{replayCid},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.Comments">
+    update comments
+    <set>
+      <if test="aid != null">
+        aid = #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="fromUid != null">
+        from_uid = #{fromUid,jdbcType=INTEGER},
+      </if>
+      <if test="toUid != null">
+        to_uid = #{toUid,jdbcType=INTEGER},
+      </if>
+      <if test="date != null">
+        date = #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="precid != null">
+        precid = #{precid,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.springboot.blog.entity.Comments">
+    update comments
+    set aid = #{aid,jdbcType=INTEGER},
+      from_uid = #{fromUid,jdbcType=INTEGER},
+      to_uid = #{toUid,jdbcType=INTEGER},
+      date = #{date,jdbcType=TIMESTAMP},
+      precid = #{precid,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.Comments">
+    update comments
+    set aid = #{aid,jdbcType=INTEGER},
+      from_uid = #{fromUid,jdbcType=INTEGER},
+      to_uid = #{toUid,jdbcType=INTEGER},
+      date = #{date,jdbcType=TIMESTAMP},
+      precid = #{precid,jdbcType=INTEGER}
+    where cid = #{cid,jdbcType=INTEGER}
+  </update>
+</mapper>

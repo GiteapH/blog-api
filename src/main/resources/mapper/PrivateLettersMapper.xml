@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.PrivateLettersMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.PrivateLetters">
+    <id column="lid" jdbcType="INTEGER" property="lid" />
+    <result column="is_push" jdbcType="TINYINT" property="isPush" />
+    <result column="push_table" jdbcType="VARCHAR" property="pushTable" />
+    <result column="push_id" jdbcType="INTEGER" property="pushId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="from_uid" jdbcType="INTEGER" property="fromUid" />
+    <result column="to_id" jdbcType="INTEGER" property="toId" />
+    <result column="send_time" jdbcType="TIMESTAMP" property="sendTime" />
+  </resultMap>
+  <resultMap id="ResultOfLetterAndUser" extends="BaseResultMap" type="cn.springboot.blog.entity.LetterAndUser">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="email" jdbcType="VARCHAR" property="email" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="head" jdbcType="VARCHAR" property="head" />
+    <result column="cardImg" jdbcType="VARCHAR" property="cardimg" />
+    <result column="lockedFlag" jdbcType="TINYINT" property="lockedflag" />
+    <result column="isDeleted" jdbcType="TINYINT" property="isdeleted" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+    <result column="qq" property="qq" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    lid, is_push, push_table, push_id, content, from_uid, to_id, send_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from private_letters
+    where lid = #{lid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllLetters" resultType="cn.springboot.blog.entity.LetterAndUser" resultMap="ResultOfLetterAndUser">
+    SELECT
+    *
+    FROM
+    `private_letters`
+    INNER JOIN users ON users.id = private_letters.from_uid
+    WHERE
+    (from_uid = #{fromUid}
+    AND to_id = #{toUid})
+    OR
+    (from_uid = #{toUid}
+    AND to_id = #{fromUid})
+    ORDER BY send_time
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from private_letters
+    where lid = #{lid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.PrivateLetters">
+    insert into private_letters (lid, is_push, push_table, 
+      push_id, content, from_uid, 
+      to_id, send_time)
+    values (#{lid,jdbcType=INTEGER}, #{isPush,jdbcType=TINYINT}, #{pushTable,jdbcType=VARCHAR}, 
+      #{pushId,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, #{fromUid,jdbcType=INTEGER}, 
+      #{toId,jdbcType=INTEGER}, #{sendTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.PrivateLetters" keyProperty="lid" useGeneratedKeys="true">
+    insert into private_letters
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="lid != null">
+        lid,
+      </if>
+      <if test="isPush != null">
+        is_push,
+      </if>
+      <if test="pushTable != null">
+        push_table,
+      </if>
+      <if test="pushId != null">
+        push_id,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="fromUid != null">
+        from_uid,
+      </if>
+      <if test="toId != null">
+        to_id,
+      </if>
+      <if test="sendTime != null">
+        send_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="lid != null">
+        #{lid,jdbcType=INTEGER},
+      </if>
+      <if test="isPush != null">
+        #{isPush,jdbcType=TINYINT},
+      </if>
+      <if test="pushTable != null">
+        #{pushTable,jdbcType=VARCHAR},
+      </if>
+      <if test="pushId != null">
+        #{pushId,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="fromUid != null">
+        #{fromUid,jdbcType=INTEGER},
+      </if>
+      <if test="toId != null">
+        #{toId,jdbcType=INTEGER},
+      </if>
+      <if test="sendTime != null">
+        #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.PrivateLetters">
+    update private_letters
+    <set>
+      <if test="isPush != null">
+        is_push = #{isPush,jdbcType=TINYINT},
+      </if>
+      <if test="pushTable != null">
+        push_table = #{pushTable,jdbcType=VARCHAR},
+      </if>
+      <if test="pushId != null">
+        push_id = #{pushId,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="fromUid != null">
+        from_uid = #{fromUid,jdbcType=INTEGER},
+      </if>
+      <if test="toId != null">
+        to_id = #{toId,jdbcType=INTEGER},
+      </if>
+      <if test="sendTime != null">
+        send_time = #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where lid = #{lid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.PrivateLetters">
+    update private_letters
+    set is_push = #{isPush,jdbcType=TINYINT},
+      push_table = #{pushTable,jdbcType=VARCHAR},
+      push_id = #{pushId,jdbcType=INTEGER},
+      content = #{content,jdbcType=VARCHAR},
+      from_uid = #{fromUid,jdbcType=INTEGER},
+      to_id = #{toId,jdbcType=INTEGER},
+      send_time = #{sendTime,jdbcType=TIMESTAMP}
+    where lid = #{lid,jdbcType=INTEGER}
+  </update>
+</mapper>

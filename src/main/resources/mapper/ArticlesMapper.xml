@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.ArticlesMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.Articles">
+    <id column="uid" jdbcType="INTEGER" property="uid" />
+    <id column="aid" jdbcType="INTEGER" property="aid" />
+    <result column="date" jdbcType="TIMESTAMP" property="date" />
+    <result column="like" jdbcType="VARCHAR" property="like" />
+    <result column="comments" jdbcType="INTEGER" property="comments" />
+    <result column="watched" jdbcType="INTEGER" property="watched" />
+    <result column="collected" jdbcType="VARCHAR" property="collected" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.springboot.blog.entity.Articles">
+    <result column="articles" jdbcType="LONGVARCHAR" property="articles" />
+    <result column="classPer" jdbcType="LONGVARCHAR" property="classper" />
+    <result column="classSys" jdbcType="LONGVARCHAR" property="classsys" />
+    <result column="tinyMes" jdbcType="LONGVARCHAR" property="tinymes" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithSys" type="cn.springboot.blog.entity.Articles">
+    <result column="classSys" jdbcType="LONGVARCHAR" property="classsys" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    uid, aid, date, `like`, comments, watched, collected, title
+  </sql>
+  <sql id="Blob_Column_List">
+    articles, classPer, classSys, tinyMes
+  </sql>
+  <sql id="Base_User_Articles_List">
+    id, email, userName, head, cardImg, lockedFlag, isDeleted, createTime,`describe`,classPer, classSys, tinyMes,date, `like`, comments, watched, collected, title,aid
+  </sql>
+  <sql id="Base_User_Article">
+    id, email, userName, head, cardImg, lockedFlag, isDeleted, createTime,`describe`,classPer, classSys, tinyMes,date, `like`, comments, watched, collected, title,aid,articles
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultType="cn.springboot.blog.entity.UserAndArticle">
+    select
+    <include refid="Base_User_Article" />
+    from articles
+    INNER JOIN users ON users.id = articles.uid
+    where aid = #{aid,jdbcType=INTEGER}
+  </select>
+    <select id="getTotalArticles" resultType="java.lang.Long">
+      select count(1) from articles
+      where true
+      <if test="uid != null">
+        and uid = #{uid}
+      </if>
+      <if test="tag!=null and tag!=''">
+        and  classSys like concat('%',#{tag},'%')
+      </if>
+      <if test="key!=null and key!=''">
+        and (title like '%${key}%' or tinyMes like '%${key}%')
+      </if>
+    </select>
+  <select id="getClasssys" resultMap="ResultMapWithBLOBs">
+    select classSys from articles
+  </select>
+  <select id="getUser2Article" parameterType="map" resultType="cn.springboot.blog.entity.UserAndArticle">
+    select
+    <include refid="Base_User_Articles_List"/>
+    from articles INNER JOIN users ON articles.uid = users.id
+    where true
+    <if test="tag!=null and tag!=''">
+       and  classSys like concat('%',#{tag},'%')
+    </if>
+    <if test="key!=null and key!=''">
+      and (title like '%${key}%' or tinyMes like '%${key}%')
+    </if>
+    <if test="orderName!=null and orderName!=''">
+      order by
+      <foreach item="item" index="index" collection="orderName.split(',')"  separator=",">
+      `${item}` desc
+    </foreach>
+    </if>
+    <if test="start!=null and limit!=null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+  <select id="getArticleByUid" resultType="cn.springboot.blog.entity.Articles" parameterType="map">
+    SELECT * FROM articles
+    where uid = #{uid}
+    limit #{start},#{limit}
+  </select>
+  <select id="getUser2ArticleNearCurDay" resultType="cn.springboot.blog.entity.UserAndArticle">
+    SELECT  <include refid="Base_User_Articles_List"/>
+    FROM articles INNER JOIN users ON articles.uid = users.id
+    where DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= `date`
+    <if test="tag!=null and tag!=''">
+      and classSys like concat('%',#{tag},'%')
+    </if>
+    <if test="orderName!=null and orderName!=''">
+      order by
+      <foreach item="item" index="index" collection="orderName.split(',')"  separator=",">
+        `${item}` desc
+      </foreach>
+    </if>
+    <if test="start!=null and limit!=null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+  <select id="getTotalCurDays" resultType="java.lang.Long">
+    SELECT count(1) from articles
+    where true
+<!--    近日-->
+    <if test="type==1">
+       AND DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt;= `date`
+      <if test="tag!=null and tag!=''">
+        and classSys like concat('%',#{tag},'%')
+      </if>
+    </if>
+<!--    精选-->
+    <if test="type==2">
+
+    </if>
+  </select>
+  <select id="selectArticlesByPrimaryKey" resultType="cn.springboot.blog.entity.Articles">
+    select
+    *
+    from articles
+    where aid = #{aid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from articles
+    where aid = #{aid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.Articles">
+    insert into articles (uid, aid, date, 
+      like, comments, watched, 
+      collected, title, articles, 
+      classPer, classSys, tinyMes
+      )
+    values (#{uid,jdbcType=INTEGER}, #{aid,jdbcType=INTEGER}, #{date,jdbcType=TIMESTAMP}, 
+      #{like,jdbcType=VARCHAR}, #{comments,jdbcType=INTEGER}, #{watched,jdbcType=INTEGER}, 
+      #{collected,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{articles,jdbcType=LONGVARCHAR}, 
+      #{classper,jdbcType=LONGVARCHAR}, #{classsys,jdbcType=LONGVARCHAR}, #{tinymes,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.Articles" useGeneratedKeys="true" keyProperty="aid">
+    insert into articles
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="aid != null">
+        aid,
+      </if>
+      <if test="date != null">
+        date,
+      </if>
+      <if test="like != null">
+        like,
+      </if>
+      <if test="comments != null">
+        comments,
+      </if>
+      <if test="watched != null">
+        watched,
+      </if>
+      <if test="collected != null">
+        collected,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="articles != null">
+        articles,
+      </if>
+      <if test="classper != null">
+        classPer,
+      </if>
+      <if test="classsys != null">
+        classSys,
+      </if>
+      <if test="tinymes != null">
+        tinyMes,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null">
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="date != null">
+        #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="like != null">
+        #{like,jdbcType=VARCHAR},
+      </if>
+      <if test="comments != null">
+        #{comments,jdbcType=INTEGER},
+      </if>
+      <if test="watched != null">
+        #{watched,jdbcType=INTEGER},
+      </if>
+      <if test="collected != null">
+        #{collected,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="articles != null">
+        #{articles,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="classper != null">
+        #{classper,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="classsys != null">
+        #{classsys,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="tinymes != null">
+        #{tinymes,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.Articles">
+    update articles
+    <set>
+      <if test="date != null">
+        date = #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="like != null">
+        like = #{like,jdbcType=VARCHAR},
+      </if>
+      <if test="dislike != null">
+        dislike = #{dislike,jdbcType=VARCHAR},
+      </if>
+      <if test="comments != null">
+        comments = #{comments,jdbcType=INTEGER},
+      </if>
+      <if test="watched != null">
+        watched = #{watched,jdbcType=INTEGER},
+      </if>
+      <if test="collected != null">
+        collected = #{collected,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="articles != null">
+        articles = #{articles,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="classper != null">
+        classPer = #{classper,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="classsys != null">
+        classSys = #{classsys,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="tinymes != null">
+        tinyMes = #{tinymes,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where aid = #{aid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.springboot.blog.entity.Articles">
+    update articles
+    set date = #{date,jdbcType=TIMESTAMP},
+      like = #{like,jdbcType=VARCHAR},
+      comments = #{comments,jdbcType=INTEGER},
+      watched = #{watched,jdbcType=INTEGER},
+      collected = #{collected,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR},
+      articles = #{articles,jdbcType=LONGVARCHAR},
+      classPer = #{classper,jdbcType=LONGVARCHAR},
+      classSys = #{classsys,jdbcType=LONGVARCHAR},
+      tinyMes = #{tinymes,jdbcType=LONGVARCHAR}
+    where uid = #{uid,jdbcType=INTEGER}
+      and aid = #{aid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.Articles">
+    update articles
+    set date = #{date,jdbcType=TIMESTAMP},
+      like = #{like,jdbcType=VARCHAR},
+      comments = #{comments,jdbcType=INTEGER},
+      watched = #{watched,jdbcType=INTEGER},
+      collected = #{collected,jdbcType=VARCHAR},
+      title = #{title,jdbcType=VARCHAR}
+    where uid = #{uid,jdbcType=INTEGER}
+      and aid = #{aid,jdbcType=INTEGER}
+  </update>
+  <update id="updateIntParam">
+    update articles
+    <set>
+    <if test="oldParamName!=null and oldParamName!=''">
+      `${oldParamName}` = `${oldParamName}`-1,
+    </if>
+    <if test="newParamName!=null and newParamName!=''">
+      `${newParamName}` = `${newParamName}`+1,
+    </if>
+    </set>
+    where aid = #{aid}
+  </update>
+</mapper>

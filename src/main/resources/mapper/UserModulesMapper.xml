@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.UserModulesMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.UserModules">
+    <id column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="open_modules" jdbcType="VARCHAR" property="openModules" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    uid, open_modules
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_modules
+    where uid = #{uid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_modules
+    where uid = #{uid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.UserModules">
+    insert into user_modules (uid, open_modules)
+    values (#{uid,jdbcType=INTEGER}, #{openModules,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.UserModules">
+    insert into user_modules
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="openModules != null">
+        open_modules,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="openModules != null">
+        #{openModules,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.UserModules">
+    update user_modules
+    <set>
+      <if test="openModules != null">
+        open_modules = #{openModules,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where uid = #{uid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.UserModules">
+    update user_modules
+    set open_modules = #{openModules,jdbcType=VARCHAR}
+    where uid = #{uid,jdbcType=INTEGER}
+  </update>
+</mapper>

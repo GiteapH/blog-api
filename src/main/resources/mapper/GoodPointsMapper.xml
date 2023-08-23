@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.GoodPointsMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.GoodPoints">
+    <id column="good_uid" jdbcType="INTEGER" property="goodUid" />
+    <result column="time" jdbcType="TIMESTAMP" property="time" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="good_id" jdbcType="INTEGER" property="goodId" />
+    <result column="table_type" jdbcType="INTEGER" property="tableType" />
+  </resultMap>
+  <resultMap id="BaseTypeCount" type="cn.springboot.blog.entity.ArticlePointsCount">
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="count" jdbcType="INTEGER" property="count"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    good_uid, time, type, good_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from good_points
+    where good_uid = #{goodUid,jdbcType=INTEGER}
+    <if test="id != null and tableType !=null">
+      AND good_id = #{id}
+      AND table_type = #{tableType}
+    </if>
+  </select>
+  <select id="countByGoodId"  parameterType="java.lang.Integer" resultMap="BaseTypeCount">
+    select type,count(*) as count from good_points WHERE True
+    <if test="id != null and tableType !=null">
+      AND good_id = #{id}
+      AND table_type = #{tableType}
+    </if>
+    GROUP BY type
+  </select>
+  <select id="selectBest" resultType="java.lang.Integer">
+    SELECT
+      good_id
+    FROM
+      comments
+    INNER JOIN users ON users.id = comments.from_uid
+    LEFT JOIN good_points ON good_points.good_id = comments.cid AND good_points.table_type = #{tableType}
+    WHERE
+      comments.aid = #{cTableId}
+      AND comments.c_type = #{cType}
+      AND table_type = #{tableType}
+      AND type = #{orderType}
+    GROUP BY
+      good_id
+    ORDER BY
+      COUNT( good_id ) DESC
+    LIMIT 0, 1;
+  </select>
+  <select id="getGoodUidListByType" resultType="java.lang.Integer">
+    SELECT
+      good_uid
+    FROM
+      good_points
+    WHERE
+    type = #{type}
+    <if test="id != null and tableType !=null">
+      AND good_id = #{id}
+      AND table_type = #{tableType}
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from good_points
+    where good_uid = #{goodUid,jdbcType=INTEGER}
+    <if test="goodId != null and tableType !=null">
+      AND good_id = #{goodId}
+      AND table_type = #{tableType}
+    </if>
+  </delete>
+    <delete id="deleteByGoodCid" parameterType="java.lang.Integer">
+      delete from good_points
+      where good_uid = #{uid} and type = #{type}
+      <if test="id != null and tableType !=null">
+        AND good_id = #{id}
+        AND table_type = #{tableType}
+      </if>
+    </delete>
+    <insert id="insert" parameterType="cn.springboot.blog.entity.GoodPoints">
+    insert into good_points (good_uid, time, type, 
+      good_id)
+    values (#{goodUid,jdbcType=INTEGER}, #{time,jdbcType=TIMESTAMP}, #{type,jdbcType=INTEGER}, 
+      #{goodId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.GoodPoints">
+    insert into good_points
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="goodUid != null">
+        good_uid,
+      </if>
+      <if test="time != null">
+        time,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="goodId != null">
+        good_id,
+      </if>
+      <if test="tableType != null">
+        table_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="goodUid != null">
+        #{goodUid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="goodId != null">
+        #{goodId,jdbcType=INTEGER},
+      </if>
+      <if test="tableType != null">
+        #{tableType,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.GoodPoints">
+    update good_points
+    <set>
+      <if test="time != null">
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="ntype != null">
+        type = #{ntype,jdbcType=INTEGER},
+      </if>
+      <if test="goodId != null">
+        good_id = #{goodId,jdbcType=INTEGER},
+      </if>
+      <if test="tableType != null">
+        table_type = #{tableType,jdbcType=INTEGER},
+      </if>
+    </set>
+    where good_uid = #{goodUid} and type = #{type}
+    <if test="goodId != null and tableType !=null">
+      AND good_id = #{goodId}
+      AND table_type = #{tableType}
+    </if>
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.GoodPoints">
+    update good_points
+    set time = #{time,jdbcType=TIMESTAMP},
+      type = #{type,jdbcType=INTEGER},
+      good_id = #{goodId,jdbcType=INTEGER},
+    where good_uid = #{goodUid,jdbcType=INTEGER}
+  </update>
+</mapper>

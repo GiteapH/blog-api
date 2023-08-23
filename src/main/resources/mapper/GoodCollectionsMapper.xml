@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.GoodCollectionsMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.GoodCollections">
+    <id column="collect_id" jdbcType="INTEGER" property="collectId" />
+    <result column="good_uid" jdbcType="INTEGER" property="goodUid" />
+    <result column="time" jdbcType="TIMESTAMP" property="time" />
+    <result column="good_aid" jdbcType="INTEGER" property="goodAid" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    collect_id, good_uid, time, good_aid
+  </sql>
+  <sql id="Base_User_Articles_List">
+    id, email, userName, head, cardImg, lockedFlag, isDeleted, createTime,`describe`,classPer, classSys, tinyMes,date, `like`, comments, watched, collected, title,aid
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from good_collections
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllByGoodAid" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from good_collections
+    where true
+    <if test="aid != null">
+     and good_aid = #{aid}
+    </if>
+    <if test="uid != null">
+      and good_uid = #{uid}
+    </if>
+  </select>
+  <select id="selectAllCollectionsByGoodUid" resultType="cn.springboot.blog.entity.UserAndArticle">
+    select
+    <include refid="Base_User_Articles_List"/>
+    from good_collections
+    INNER JOIN articles ON articles.aid = good_collections.good_aid
+    INNER JOIN users ON users.id = articles.uid
+    where good_collections.good_uid = ${uid}
+    and DATE_SUB(CURDATE(), INTERVAL 5 DAY) &lt;= `time`
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from good_collections
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.GoodCollections">
+    insert into good_collections (collect_id, good_uid, time, good_aid)
+    values (#{collectId,jdbcType=INTEGER}, #{goodUid,jdbcType=INTEGER}, #{time,jdbcType=TIMESTAMP}, 
+      #{goodAid,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.GoodCollections">
+    insert into good_collections
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="collectId != null">
+        collect_id,
+      </if>
+      <if test="goodUid != null">
+        good_uid,
+      </if>
+      <if test="time != null">
+        time,
+      </if>
+      <if test="goodAid != null">
+        good_aid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="collectId != null">
+        #{collectId,jdbcType=INTEGER},
+      </if>
+      <if test="goodUid != null">
+        #{goodUid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null">
+        #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="goodAid != null">
+        #{goodAid,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.GoodCollections">
+    update good_collections
+    <set>
+      <if test="goodUid != null">
+        good_uid = #{goodUid,jdbcType=INTEGER},
+      </if>
+      <if test="time != null">
+        time = #{time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="goodAid != null">
+        good_aid = #{goodAid,jdbcType=INTEGER},
+      </if>
+    </set>
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.GoodCollections">
+    update good_collections
+    set good_uid = #{goodUid,jdbcType=INTEGER},
+      time = #{time,jdbcType=TIMESTAMP},
+      good_aid = #{goodAid,jdbcType=INTEGER}
+    where collect_id = #{collectId,jdbcType=INTEGER}
+  </update>
+</mapper>

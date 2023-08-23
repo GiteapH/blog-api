@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.SearchContentMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.SearchContent">
+    <id column="search_id" jdbcType="INTEGER" property="searchId" />
+    <result column="priority" jdbcType="INTEGER" property="priority" />
+    <result column="is_topic" jdbcType="TINYINT" property="isTopic" />
+    <result column="search_date" jdbcType="TIMESTAMP" property="searchDate" />
+    <result column="search_content" jdbcType="LONGVARCHAR" property="searchContent" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.springboot.blog.entity.SearchContent">
+    <result column="search_content" jdbcType="LONGVARCHAR" property="searchContent" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    search_id, priority, is_topic, search_date
+  </sql>
+  <sql id="Blob_Column_List">
+    search_content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from search_content
+    where search_id = #{searchId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllMatch" resultMap="BaseResultMap">
+    SELECT *
+    FROM search_content
+    WHERE search_content like replace('<foreach item="item" index="index" collection="prefix.split('')"  separator="%" open="%" close="%">${item}</foreach>',' ','')
+    order by priority desc
+    limit 15
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from search_content
+    where search_id = #{searchId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.SearchContent">
+    insert into search_content (search_id, priority, is_topic, 
+      search_date, search_content)
+    values (#{searchId,jdbcType=INTEGER}, #{priority,jdbcType=INTEGER}, #{isTopic,jdbcType=TINYINT}, 
+      #{searchDate,jdbcType=TIMESTAMP}, #{searchContent,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.SearchContent">
+    insert into search_content
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="searchId != null">
+        search_id,
+      </if>
+      <if test="priority != null">
+        priority,
+      </if>
+      <if test="isTopic != null">
+        is_topic,
+      </if>
+      <if test="searchDate != null">
+        search_date,
+      </if>
+      <if test="searchContent != null">
+        search_content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="searchId != null">
+        #{searchId,jdbcType=INTEGER},
+      </if>
+      <if test="priority != null">
+        #{priority,jdbcType=INTEGER},
+      </if>
+      <if test="isTopic != null">
+        #{isTopic,jdbcType=TINYINT},
+      </if>
+      <if test="searchDate != null">
+        #{searchDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="searchContent != null">
+        #{searchContent,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.SearchContent">
+    update search_content
+    <set>
+      <if test="priority != null">
+        priority = #{priority,jdbcType=INTEGER},
+      </if>
+      <if test="isTopic != null">
+        is_topic = #{isTopic,jdbcType=TINYINT},
+      </if>
+      <if test="searchDate != null">
+        search_date = #{searchDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="searchContent != null">
+        search_content = #{searchContent,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where search_id = #{searchId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.springboot.blog.entity.SearchContent">
+    update search_content
+    set priority = #{priority,jdbcType=INTEGER},
+      is_topic = #{isTopic,jdbcType=TINYINT},
+      search_date = #{searchDate,jdbcType=TIMESTAMP},
+      search_content = #{searchContent,jdbcType=LONGVARCHAR}
+    where search_id = #{searchId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.SearchContent">
+    update search_content
+    set priority = #{priority,jdbcType=INTEGER},
+      is_topic = #{isTopic,jdbcType=TINYINT},
+      search_date = #{searchDate,jdbcType=TIMESTAMP}
+    where search_id = #{searchId,jdbcType=INTEGER}
+  </update>
+</mapper>

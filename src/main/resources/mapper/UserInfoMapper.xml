@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.UserInfoMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.UserInfo">
+    <id column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="fans" jdbcType="INTEGER" property="fans" />
+    <result column="followers" jdbcType="INTEGER" property="followers" />
+    <result column="collections" jdbcType="INTEGER" property="collections" />
+    <result column="readers" jdbcType="INTEGER" property="readers" />
+    <result column="comments" jdbcType="INTEGER" property="comments" />
+    <result column="goods" jdbcType="INTEGER" property="goods" />
+    <result column="submits" jdbcType="INTEGER" property="submits" />
+    <result column="interviewer" jdbcType="INTEGER" property="interviewer" />
+    <result column="gender" jdbcType="INTEGER" property="gender" />
+    <result column="dislike_category" jdbcType="VARCHAR" property="dislikeCategory"/>
+    <result column="like_category" jdbcType="VARCHAR" property="likeCategory"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    uid, fans, followers, collections, readers, comments, goods, submits, interviewer, 
+    gender,dislike_category,like_category
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_info
+    where uid = #{uid,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_info
+    where uid = #{uid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.UserInfo">
+    insert into user_info (uid, fans, followers, 
+      collections, readers, comments, 
+      goods, submits, interviewer, 
+      gender)
+    values (#{uid,jdbcType=INTEGER}, #{fans,jdbcType=INTEGER}, #{followers,jdbcType=INTEGER}, 
+      #{collections,jdbcType=INTEGER}, #{readers,jdbcType=INTEGER}, #{comments,jdbcType=INTEGER}, 
+      #{goods,jdbcType=INTEGER}, #{submits,jdbcType=INTEGER}, #{interviewer,jdbcType=INTEGER}, 
+      #{gender,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.UserInfo" useGeneratedKeys="true" keyProperty="uid">
+    insert into user_info
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        uid,
+      </if>
+      <if test="fans != null">
+        fans,
+      </if>
+      <if test="followers != null">
+        followers,
+      </if>
+      <if test="collections != null">
+        collections,
+      </if>
+      <if test="readers != null">
+        readers,
+      </if>
+      <if test="comments != null">
+        comments,
+      </if>
+      <if test="goods != null">
+        goods,
+      </if>
+      <if test="submits != null">
+        submits,
+      </if>
+      <if test="interviewer != null">
+        interviewer,
+      </if>
+      <if test="gender != null">
+        gender,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+      <if test="fans != null">
+        #{fans,jdbcType=INTEGER},
+      </if>
+      <if test="followers != null">
+        #{followers,jdbcType=INTEGER},
+      </if>
+      <if test="collections != null">
+        #{collections,jdbcType=INTEGER},
+      </if>
+      <if test="readers != null">
+        #{readers,jdbcType=INTEGER},
+      </if>
+      <if test="comments != null">
+        #{comments,jdbcType=INTEGER},
+      </if>
+      <if test="goods != null">
+        #{goods,jdbcType=INTEGER},
+      </if>
+      <if test="submits != null">
+        #{submits,jdbcType=INTEGER},
+      </if>
+      <if test="interviewer != null">
+        #{interviewer,jdbcType=INTEGER},
+      </if>
+      <if test="gender != null">
+        #{gender,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.UserInfo">
+    update user_info
+    <set>
+      <if test="fans != null">
+        fans = #{fans,jdbcType=INTEGER},
+      </if>
+      <if test="followers != null">
+        followers = #{followers,jdbcType=INTEGER},
+      </if>
+      <if test="collections != null">
+        collections = #{collections,jdbcType=INTEGER},
+      </if>
+      <if test="readers != null">
+        readers = #{readers,jdbcType=INTEGER},
+      </if>
+      <if test="comments != null">
+        comments = #{comments,jdbcType=INTEGER},
+      </if>
+      <if test="goods != null">
+        goods = #{goods,jdbcType=INTEGER},
+      </if>
+      <if test="submits != null">
+        submits = #{submits,jdbcType=INTEGER},
+      </if>
+      <if test="interviewer != null">
+        interviewer = #{interviewer,jdbcType=INTEGER},
+      </if>
+      <if test="gender != null">
+        gender = #{gender,jdbcType=INTEGER},
+      </if>
+      <if test="likeCategory != null">
+        like_category = #{likeCategory,jdbcType=VARCHAR},
+      </if>
+      <if test="dislikeCategory != null">
+        dislike_category = #{dislikeCategory,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where uid = #{uid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.UserInfo">
+    update user_info
+    set fans = #{fans,jdbcType=INTEGER},
+      followers = #{followers,jdbcType=INTEGER},
+      collections = #{collections,jdbcType=INTEGER},
+      readers = #{readers,jdbcType=INTEGER},
+      comments = #{comments,jdbcType=INTEGER},
+      goods = #{goods,jdbcType=INTEGER},
+      submits = #{submits,jdbcType=INTEGER},
+      interviewer = #{interviewer,jdbcType=INTEGER},
+      gender = #{gender,jdbcType=INTEGER}
+    where uid = #{uid,jdbcType=INTEGER}
+  </update>
+</mapper>

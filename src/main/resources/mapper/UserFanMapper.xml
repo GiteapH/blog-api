@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.UserFanMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.UserFan">
+    <id column="fid" jdbcType="INTEGER" property="fid" />
+    <result column="f_uid" jdbcType="INTEGER" property="fUid" />
+    <result column="f_touid" jdbcType="INTEGER" property="fTouid" />
+    <result column="f_date" jdbcType="TIMESTAMP" property="fDate" />
+    <result column="f_type" jdbcType="TINYINT" property="fType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="FanUserMap" type="cn.springboot.blog.entity.UserAndFanned">
+      <id column="id" jdbcType="BIGINT" property="id" />
+      <id column="email" jdbcType="VARCHAR" property="email" />
+      <result column="userName" jdbcType="VARCHAR" property="username" />
+      <result column="password" jdbcType="VARCHAR" property="password" />
+      <result column="head" jdbcType="VARCHAR" property="head" />
+      <result column="cardImg" jdbcType="VARCHAR" property="cardimg" />
+      <result column="lockedFlag" jdbcType="TINYINT" property="lockedflag" />
+      <result column="isDeleted" jdbcType="TINYINT" property="isdeleted" />
+      <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+      <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    fid, f_uid, f_touid, f_date, f_type
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_fan
+    where fid = #{fid,jdbcType=INTEGER}
+  </select>
+  <select id="selectByFTouidAndFUid" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from user_fan where f_touid = #{upUid} and f_uid = #{loginUid}
+  </select>
+    <select id="selectUserFanEachOther" resultType="integer">
+      select
+      count(*)
+      from user_fan where
+      <if test="type==0">
+        f_touid = #{loginUid} and f_uid = #{upUid}
+    </if>
+      <if test="type==1">
+        f_uid = #{loginUid} and f_touid = #{upUid}
+      </if>
+      <if test="type==2">
+        f_touid = #{loginUid} and f_uid = #{upUid}
+      or  f_uid = #{loginUid} and f_touid = #{upUid}
+      </if>
+    </select>
+  <select id="selectUserFans" resultMap="FanUserMap" parameterType="map">
+    select
+    *
+    from user_fan
+    inner join users on users.id = user_fan.f_touid
+    where  f_uid = #{loginUid}
+    <if test="type!=null">
+      and f_type=#{type}
+    </if>
+    <if test="sortKey==1">
+        order by f_date desc
+    </if>
+    limit #{start},#{limit}
+  </select>
+  <select id="lenUserFans" resultType="java.lang.Integer">
+    select count(fid) from user_fan where f_uid = #{loginUid}
+    <if test="type!=null">
+      and f_type=#{type}
+    </if>
+  </select>
+    <select id="selectUserFansList"  resultMap="FanUserMap" parameterType="map">
+      select
+      *
+      from user_fan
+      inner join users on users.id = user_fan.f_uid
+      where  f_touid = #{loginUid}
+      <if test="sortKey==1">
+        order by f_date desc
+      </if>
+      limit #{start},#{limit}
+    </select>
+  <select id="lenUserFanList" resultType="java.lang.Integer">
+    select count(fid) from user_fan where f_touid = #{loginUid}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_fan
+    where fid = #{fid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.UserFan">
+    insert into user_fan (fid, f_uid, f_touid, 
+      f_date, f_type)
+    values (#{fid,jdbcType=INTEGER}, #{fUid,jdbcType=INTEGER}, #{fTouid,jdbcType=INTEGER}, 
+      #{fDate,jdbcType=TIMESTAMP}, #{fType,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.UserFan" useGeneratedKeys="true" keyProperty="fid">
+    insert into user_fan
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="fid != null">
+        fid,
+      </if>
+      <if test="fUid != null">
+        f_uid,
+      </if>
+      <if test="fTouid != null">
+        f_touid,
+      </if>
+      <if test="fDate != null">
+        f_date,
+      </if>
+      <if test="fType != null">
+        f_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="fid != null">
+        #{fid,jdbcType=INTEGER},
+      </if>
+      <if test="fUid != null">
+        #{fUid,jdbcType=INTEGER},
+      </if>
+      <if test="fTouid != null">
+        #{fTouid,jdbcType=INTEGER},
+      </if>
+      <if test="fDate != null">
+        #{fDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fType != null">
+        #{fType,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.UserFan">
+    update user_fan
+    <set>
+      <if test="fUid != null">
+        f_uid = #{fUid,jdbcType=INTEGER},
+      </if>
+      <if test="fTouid != null">
+        f_touid = #{fTouid,jdbcType=INTEGER},
+      </if>
+      <if test="fDate != null">
+        f_date = #{fDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="fType != null">
+        f_type = #{fType,jdbcType=TINYINT},
+      </if>
+    </set>
+    where fid = #{fid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.UserFan">
+    update user_fan
+    set f_uid = #{fUid,jdbcType=INTEGER},
+      f_touid = #{fTouid,jdbcType=INTEGER},
+      f_date = #{fDate,jdbcType=TIMESTAMP},
+      f_type = #{fType,jdbcType=TINYINT}
+    where fid = #{fid,jdbcType=INTEGER}
+  </update>
+</mapper>

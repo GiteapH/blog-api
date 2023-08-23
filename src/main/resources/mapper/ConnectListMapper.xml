@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.ConnectListMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.ConnectList">
+    <id column="connect_id" jdbcType="INTEGER" property="connectId" />
+    <result column="principal_uid" jdbcType="INTEGER" property="principalUid" />
+    <result column="subordinate_uid" jdbcType="INTEGER" property="subordinateUid" />
+    <result column="connect_date" jdbcType="TIMESTAMP" property="connectDate" />
+    <result column="weight" jdbcType="INTEGER" property="weight" />
+    <result column="last_content" jdbcType="VARCHAR" property="lastContent" />
+    <result column="unread_num" jdbcType="INTEGER" property="unreadNum" />
+  </resultMap>
+  <resultMap id="ConnectAndUserMap" extends="BaseResultMap" type="cn.springboot.blog.entity.ConnectAndUser">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="email" jdbcType="VARCHAR" property="email" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="head" jdbcType="VARCHAR" property="head" />
+    <result column="cardImg" jdbcType="VARCHAR" property="cardimg" />
+    <result column="lockedFlag" jdbcType="TINYINT" property="lockedflag" />
+    <result column="isDeleted" jdbcType="TINYINT" property="isdeleted" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+    <result column="qq" jdbcType="VARCHAR" property="qq"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    connect_id, principal_uid, subordinate_uid, connect_date, weight, last_content, unread_num
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List"/>
+    from connect_list
+    where connect_id = #{connectId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllByPrincipalUid" resultMap="ConnectAndUserMap" parameterType="map">
+    select * from connect_list
+    inner join users on users.id = connect_list.subordinate_uid
+    where
+    principal_uid = #{principal}
+    <if test="orderName!=null and orderName!=''">
+      order by `${orderName}` desc
+    </if>
+    <if test="start!=null and limit!=null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+  <select id="selectConnectIdByPrincipalUidAndSubordinateUid" resultType="java.lang.Integer">
+    Select connect_id from connect_list where principal_uid = #{principalUid} and subordinate_uid = #{subordinateUid}
+  </select>
+    <select id="selectAllLenByPrincipalUid" resultType="java.lang.Integer">
+      select count(*) from connect_list where principal_uid = #{principal}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+  delete from connect_list
+  where connect_id = #{connectId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.ConnectList">
+    insert into connect_list (connect_id, principal_uid, subordinate_uid, 
+      connect_date, weight, last_content, 
+      unread_num)
+    values (#{connectId,jdbcType=INTEGER}, #{principalUid,jdbcType=INTEGER}, #{subordinateUid,jdbcType=INTEGER}, 
+      #{connectDate,jdbcType=TIMESTAMP}, #{weight,jdbcType=INTEGER}, #{lastContent,jdbcType=VARCHAR}, 
+      #{unreadNum,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.ConnectList" useGeneratedKeys="true" keyProperty="connectId">
+    insert into connect_list
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="connectId != null">
+        connect_id,
+      </if>
+      <if test="principalUid != null">
+        principal_uid,
+      </if>
+      <if test="subordinateUid != null">
+        subordinate_uid,
+      </if>
+      <if test="connectDate != null">
+        connect_date,
+      </if>
+      <if test="weight != null">
+        weight,
+      </if>
+      <if test="lastContent != null">
+        last_content,
+      </if>
+      <if test="unreadNum != null">
+        unread_num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="connectId != null">
+        #{connectId,jdbcType=INTEGER},
+      </if>
+      <if test="principalUid != null">
+        #{principalUid,jdbcType=INTEGER},
+      </if>
+      <if test="subordinateUid != null">
+        #{subordinateUid,jdbcType=INTEGER},
+      </if>
+      <if test="connectDate != null">
+        #{connectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="weight != null">
+        #{weight,jdbcType=INTEGER},
+      </if>
+      <if test="lastContent != null">
+        #{lastContent,jdbcType=VARCHAR},
+      </if>
+      <if test="unreadNum != null">
+        #{unreadNum,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.ConnectList">
+    update connect_list
+    <set>
+      <if test="principalUid != null">
+        principal_uid = #{principalUid,jdbcType=INTEGER},
+      </if>
+      <if test="subordinateUid != null">
+        subordinate_uid = #{subordinateUid,jdbcType=INTEGER},
+      </if>
+      <if test="connectDate != null">
+        connect_date = #{connectDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="weight != null">
+        weight = #{weight,jdbcType=INTEGER},
+      </if>
+      <if test="lastContent != null">
+        last_content = #{lastContent,jdbcType=VARCHAR},
+      </if>
+      <if test='action == "reset"'>
+          unread_num = 0,
+      </if>
+      <if test='action == "+"'>
+        unread_num = unread_num + #{unreadNum,jdbcType=INTEGER},
+      </if>
+      <if test='action == "-"'>
+        unread_num = unread_num - #{unreadNum,jdbcType=INTEGER},
+      </if>
+    </set>
+    where connect_id = #{connectId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.ConnectList">
+    update connect_list
+    set principal_uid = #{principalUid,jdbcType=INTEGER},
+      subordinate_uid = #{subordinateUid,jdbcType=INTEGER},
+      connect_date = #{connectDate,jdbcType=TIMESTAMP},
+      weight = #{weight,jdbcType=INTEGER},
+      last_content = #{lastContent,jdbcType=VARCHAR},
+      unread_num = #{unreadNum,jdbcType=INTEGER}
+    where connect_id = #{connectId,jdbcType=INTEGER}
+  </update>
+</mapper>

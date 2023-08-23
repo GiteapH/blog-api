@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.UsersMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.Users">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="email" jdbcType="VARCHAR" property="email" />
+    <result column="userName" jdbcType="VARCHAR" property="username" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="head" jdbcType="VARCHAR" property="head" />
+    <result column="cardImg" jdbcType="VARCHAR" property="cardimg" />
+    <result column="lockedFlag" jdbcType="TINYINT" property="lockedflag" />
+    <result column="isDeleted" jdbcType="TINYINT" property="isdeleted" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+    <result column="qq" property="qq" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="cn.springboot.blog.entity.Users">
+    <result column="describe" jdbcType="LONGVARCHAR" property="describe" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="UserInfoAndRegisterInfo" type="cn.springboot.blog.entity.UserInfoAndRegisterInfo">
+    <result column="fans" jdbcType="INTEGER" property="fans" />
+    <result column="followers" jdbcType="INTEGER" property="followers" />
+    <result column="collections" jdbcType="INTEGER" property="collections" />
+    <result column="readers" jdbcType="INTEGER" property="readers" />
+    <result column="comments" jdbcType="INTEGER" property="comments" />
+    <result column="goods" jdbcType="INTEGER" property="goods" />
+    <result column="submits" jdbcType="INTEGER" property="submits" />
+    <result column="interviewer" jdbcType="INTEGER" property="interviewer" />
+    <result column="gender" jdbcType="INTEGER" property="gender" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, email, userName, `password`, head, cardImg, lockedFlag, isDeleted, createTime,qq
+  </sql>
+  <sql id="Blob_Column_List">
+    `describe`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from users
+    where id = #{id,jdbcType=BIGINT}
+    and email = #{email,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByEmail" parameterType="map" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from users
+    where email = #{email,jdbcType=VARCHAR}
+  </select>
+  <select id="findMallUserList" parameterType="map" resultMap="UserInfoAndRegisterInfo">
+    select
+    *
+    from users
+    inner join user_info on user_info.uid = users.id
+    where 1=1
+    <if test="email!=null and email!=''">
+      and email = #{email}
+    </if>
+    <if test="uids!=null">
+      and id in
+      <foreach collection="uids" item="item" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+    order by createtime desc
+    <if test="start!=null and limit!=null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+  <select id="getTotalMallUsers" parameterType="Map" resultType="int">
+    select count(*) from users
+    where 1=1
+    <if test="email!=null and email!=''">
+      and email = #{email}
+    </if>
+  </select>
+  <select id="selectByLoginNameAndPasswd" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from users
+    where email = #{email} and `password` = #{password} and isDeleted = 0
+  </select>
+
+    <select id="selectById" resultType="cn.springboot.blog.entity.UserInfoAndRegisterInfo">
+      select
+      *
+      from users
+      inner join user_info on users.id  = user_info.uid
+      where id = #{id}
+    </select>
+  <select id="selectFanGroups" resultType="java.lang.String">
+    Select fan_group from users where id = #{uid}
+  </select>
+
+  <select id="getUserListByKey" resultType="cn.springboot.blog.entity.UserInfoAndRegisterInfo">
+    select *
+    from users
+    inner join user_info on users.id  = user_info.uid
+    where true
+    <if test="key!=null and key!=''">
+      and userName like concat('%',#{key},'%') or email like concat('%',#{key},'%')
+    </if>
+    order by `${orderName}` desc
+    <if test="start!=null and limit!=null">
+      limit #{start},#{limit}
+    </if>
+  </select>
+  <select id="getUserByKeyLen" resultType="java.lang.Integer">
+    select count(id)
+    from users
+    inner join user_info on users.id  = user_info.uid
+    where true
+    <if test="key!=null and key!=''">
+      and userName like concat('%',#{key},'%') or email like concat('%',#{key},'%')
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from users
+    where id = #{id,jdbcType=BIGINT}
+    and email = #{email,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.springboot.blog.entity.Users" useGeneratedKeys="true">
+    insert into users (email, userName, `password`,
+    head, cardImg, lockedFlag,
+    isDeleted, createTime, `describe`
+    )
+    values (#{email,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+    #{head,jdbcType=VARCHAR}, #{cardimg,jdbcType=VARCHAR}, #{lockedflag,jdbcType=TINYINT},
+    #{isdeleted,jdbcType=TINYINT}, #{createtime,jdbcType=TIMESTAMP}, #{describe,jdbcType=LONGVARCHAR}
+    )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.springboot.blog.entity.Users" useGeneratedKeys="true">
+    insert into users
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="email != null">
+        email,
+      </if>
+      <if test="username != null">
+        userName,
+      </if>
+      <if test="password != null">
+        `password`,
+      </if>
+      <if test="head != null">
+        head,
+      </if>
+      <if test="cardimg != null">
+        cardImg,
+      </if>
+      <if test="lockedflag != null">
+        lockedFlag,
+      </if>
+      <if test="isdeleted != null">
+        isDeleted,
+      </if>
+      <if test="createtime != null">
+        createTime,
+      </if>
+      <if test="describe != null">
+        `describe`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="head != null">
+        #{head,jdbcType=VARCHAR},
+      </if>
+      <if test="cardimg != null">
+        #{cardimg,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null">
+        #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="lockedflag != null">
+        #{lockedflag,jdbcType=TINYINT},
+      </if>
+      <if test="isdeleted != null">
+        #{isdeleted,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null">
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="describe != null">
+        #{describe,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.Users">
+    update users
+    <set>
+      <if test="username != null">
+        userName = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        `password` = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="head != null">
+        head = #{head,jdbcType=VARCHAR},
+      </if>
+      <if test="cardimg != null">
+        cardImg = #{cardimg,jdbcType=VARCHAR},
+      </if>
+      <if test="lockedflag != null">
+        lockedFlag = #{lockedflag,jdbcType=TINYINT},
+      </if>
+      <if test="isdeleted != null">
+        isDeleted = #{isdeleted,jdbcType=TINYINT},
+      </if>
+      <if test="createtime != null">
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="describe != null">
+        `describe` = #{describe,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="qq != null">
+        qq = #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="cn.springboot.blog.entity.Users">
+    update users
+    set userName = #{username,jdbcType=VARCHAR},
+    `password` = #{password,jdbcType=VARCHAR},
+    head = #{head,jdbcType=VARCHAR},
+    cardImg = #{cardimg,jdbcType=VARCHAR},
+    lockedFlag = #{lockedflag,jdbcType=TINYINT},
+    isDeleted = #{isdeleted,jdbcType=TINYINT},
+    createTime = #{createtime,jdbcType=TIMESTAMP},
+    `describe` = #{describe,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+    and email = #{email,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.Users">
+    update users
+    set userName = #{username,jdbcType=VARCHAR},
+    `password` = #{password,jdbcType=VARCHAR},
+    head = #{head,jdbcType=VARCHAR},
+    cardImg = #{cardimg,jdbcType=VARCHAR},
+    lockedFlag = #{lockedflag,jdbcType=TINYINT},
+    isDeleted = #{isdeleted,jdbcType=TINYINT},
+    createTime = #{createtime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+    and email = #{email,jdbcType=VARCHAR}
+  </update>
+  <update id="updateFanGroup">
+    UPDATE users
+    SET fan_group = CONCAT( fan_group, ' ', #{newGroup} )
+    WHERE
+    id = #{uid}
+  </update>
+</mapper>

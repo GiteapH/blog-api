@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.springboot.blog.dao.UserClockMapper">
+  <resultMap id="BaseResultMap" type="cn.springboot.blog.entity.UserClock">
+    <id column="kid" jdbcType="INTEGER" property="kid" />
+    <result column="clock_date" jdbcType="DATE" property="clockDate" />
+    <result column="event" jdbcType="VARCHAR" property="event" />
+    <result column="uid" jdbcType="INTEGER" property="uid"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    kid, clock_date, event,uid
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_clock
+    where kid = #{kid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAllUserClocks" resultMap="BaseResultMap" resultType="cn.springboot.blog.entity.UserClock" >
+    select
+    <include refid="Base_Column_List"/>
+    from user_clock
+    where uid = #{uid} and date_format(clock_date, '%Y-%m') =  date_format(#{end},'%Y-%m')
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from user_clock
+    where kid = #{kid,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="cn.springboot.blog.entity.UserClock" useGeneratedKeys="true" keyProperty="kid">
+    insert into user_clock (kid, clock_date, event
+      )
+    values (#{kid,jdbcType=INTEGER}, #{clockDate,jdbcType=DATE}, #{event,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.UserClock"  useGeneratedKeys="true" keyProperty="kid">
+    insert into user_clock
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="kid != null">
+        kid,
+      </if>
+      <if test="clockDate != null">
+        clock_date,
+      </if>
+      <if test="event != null">
+        event,
+      </if>
+      <if test="uid != null">
+        uid,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="kid != null">
+        #{kid,jdbcType=INTEGER},
+      </if>
+      <if test="clockDate != null">
+        #{clockDate,jdbcType=DATE},
+      </if>
+      <if test="event != null">
+        #{event,jdbcType=VARCHAR},
+      </if>
+      <if test="uid != null">
+        #{uid,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="cn.springboot.blog.entity.UserClock">
+    update user_clock
+    <set>
+      <if test="clockDate != null">
+        clock_date = #{clockDate,jdbcType=DATE},
+      </if>
+      <if test="event != null">
+        event = concat(',', #{event}),
+      </if>
+    </set>
+    where kid = #{kid,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="cn.springboot.blog.entity.UserClock">
+    update user_clock
+    set clock_date = #{clockDate,jdbcType=DATE},
+      event = #{event,jdbcType=VARCHAR}
+    where kid = #{kid,jdbcType=INTEGER}
+  </update>
+</mapper>
