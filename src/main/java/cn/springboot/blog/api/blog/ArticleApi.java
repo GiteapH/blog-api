@@ -3,13 +3,15 @@ package cn.springboot.blog.api.blog;
 import cn.springboot.blog.api.blog.param.ArticleParams;
 import cn.springboot.blog.api.blog.param.ArticleUpdateParams;
 import cn.springboot.blog.api.blog.vo.LenV0;
-import cn.springboot.blog.entity.ArticlePointsCount;
-import cn.springboot.blog.entity.Articles;
-import cn.springboot.blog.entity.UserAndArticle;
+import cn.springboot.blog.config.liner.tagCategoryDict;
+import cn.springboot.blog.entity.*;
 import cn.springboot.blog.service.ArticleService;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 import cn.springboot.blog.service.GoodPointsService;
+import cn.springboot.blog.service.TagCategoryService;
+import cn.springboot.blog.service.UserInfoService;
 import cn.springboot.blog.util.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
@@ -24,6 +26,12 @@ import javax.annotation.Resource;
 public class ArticleApi {
     @Resource
     ArticleService articleService;
+
+    @Resource
+    TagCategoryService tagCategoryService;
+
+    @Resource
+    UserInfoService userInfoService;
 
     @Resource
     GoodPointsService goodPointsService;
@@ -58,6 +66,27 @@ public class ArticleApi {
         }
     }
 
+    @GetMapping("/article/getUserLike")
+    public Result getUserLike(@RequestParam Integer uid,@RequestParam(defaultValue = "1") Integer start){
+        try {
+            UserInfo userInfo = userInfoService.getUserInfo(uid);
+            List<Articles> userArticleAll = new ArrayList<>();
+            for(String classSys:userInfo.getLikeCategory().split(",")){
+                Map<String,Object> map = new HashMap<>();
+                map.put("page",start);
+                map.put("limit",1);
+                map.put("classSys",classSys);
+                PageQueryUtil pageQueryUtil = new PageQueryUtil(map);
+                List<Articles> userArticle = articleService.getUserLikeArticle(pageQueryUtil);
+                userArticleAll.addAll(userArticle);
+                if(userArticleAll.size()>15)break;
+            }
+            return ResultGenerator.genSuccessResult(userArticleAll);
+        }catch (Exception e){
+            return ResultGenerator.genFailResult(e.getMessage());
+        }
+    }
+
     @GetMapping("/article/getTags")
     public Result<String> getTags(){
         List<Articles> articleTags;
@@ -78,6 +107,18 @@ public class ArticleApi {
                 }
             }
         }
+
+        ArrayList<String> ids = new ArrayList<>(map.keySet());
+        Map<Long, String> idMap = new HashMap<>() ;
+        List<TagCategory> tagCategoriesByIds = tagCategoryService.getTagCategoriesByIds(ids);
+        System.err.println(tagCategoriesByIds);
+        tagCategoriesByIds.forEach((TagCategory tagCategory)->{
+            idMap.put(tagCategory.getCategoryId(),tagCategory.getCategoryName());
+        });
+        idMap.forEach((Long aLong,String s) -> {
+            map.put(s,map.remove(aLong.toString()));
+        });
+
         return ResultGenerator.genSuccessResult(map);
 
     }
@@ -87,6 +128,8 @@ public class ArticleApi {
                                            @RequestParam(required = false,defaultValue = "1") @ApiParam(value = "页码") Integer pageNumber,
                                            @RequestParam(required = false) @ApiParam(value = "标签名") String tag,
                                             @RequestParam(required = false) @ApiParam(value = "关键字") String key){
+        if(tag != null)
+            tag = tagCategoryService.getIDByName(tag).toString();
         Map<String, Object> store = new HashMap<>();
         store.put("page",pageNumber);
         store.put("tag",tag);
@@ -97,11 +140,18 @@ public class ArticleApi {
         List<UserAndArticle> userAndArticle;
         try{
             userAndArticle = articleService.getUserAndArticle(pageQueryUtil);
+            userAndArticle.forEach(ua -> {
+                String classify = ua.getClasssys();
+                String[] s = "".equals(classify)?new String[]{}:classify.split(" ");
+                for(int i=0;i<s.length;i++){
+                    s[i] = tagCategoryDict.tagCategoryMap.get(Long.valueOf(s[i]));
+                }
+                ua.setClasssys(String.join(" ",s));
+            });
         }catch (Exception e){
             e.printStackTrace();
             return ResultGenerator.genErrorResult(500,e.getLocalizedMessage());
         }
-        System.out.println(pageQueryUtil);
         return ResultGenerator.genSuccessResult(userAndArticle);
 
     }
@@ -118,6 +168,12 @@ public class ArticleApi {
         if(article!=null){
             article.setTypeUidsMap(typeUids);
             article.setCountType(articlePointsCounts);
+            String classify = article.getClasssys();
+            String[] s = "".equals(classify)?new String[]{}:classify.split(" ");
+            for(int i=0;i<s.length;i++){
+                s[i] = tagCategoryDict.tagCategoryMap.getOrDefault(Long.valueOf(s[i]),"不存在");
+            }
+            article.setClasssys(String.join(" ",s));
             return ResultGenerator.genSuccessResult(article);
         }else{
            return ResultGenerator.genFailResult("获取文章错误");

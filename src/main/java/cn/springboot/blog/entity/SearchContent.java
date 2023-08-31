@@ -1,8 +1,11 @@
 package cn.springboot.blog.entity;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 
+@Data
 public class SearchContent implements Serializable {
     /**
      * 搜索内容id
@@ -39,48 +42,15 @@ public class SearchContent implements Serializable {
      */
     private String searchContent;
 
-    private static final long serialVersionUID = 1L;
 
-    public Integer getSearchId() {
-        return searchId;
+    public SearchContent() {
+
     }
 
-    public void setSearchId(Integer searchId) {
-        this.searchId = searchId;
+    public SearchContent(String content) {
+        this.searchContent = content;
+        this.searchDate = new Date();
     }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Integer priority) {
-        this.priority = priority;
-    }
-
-    public Byte getIsTopic() {
-        return isTopic;
-    }
-
-    public void setIsTopic(Byte isTopic) {
-        this.isTopic = isTopic;
-    }
-
-    public Date getSearchDate() {
-        return searchDate;
-    }
-
-    public void setSearchDate(Date searchDate) {
-        this.searchDate = searchDate;
-    }
-
-    public String getSearchContent() {
-        return searchContent;
-    }
-
-    public void setSearchContent(String searchContent) {
-        this.searchContent = searchContent;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -92,7 +62,6 @@ public class SearchContent implements Serializable {
         sb.append(", isTopic=").append(isTopic);
         sb.append(", searchDate=").append(searchDate);
         sb.append(", searchContent=").append(searchContent);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
     }

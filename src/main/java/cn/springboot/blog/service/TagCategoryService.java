@@ -24,7 +24,13 @@ public interface TagCategoryService {
      */
    List<TagCategory> getTagCategoryByParentId(Long pid);
 
+   Integer getIDByName(String tagName);
+
    TagCategory getTagCategoryByCategoryId(Long id);
+
+   List<TagCategory> getAll();
+
+   List<TagCategory> getTagCategoriesByIds(List<String> ids);
 
    void getSonCategories(Long id, List<TagCategoryServiceImpl.innerTagCategory> innerTagCategory);
 }

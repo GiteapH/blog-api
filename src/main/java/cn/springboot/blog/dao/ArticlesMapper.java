@@ -3,6 +3,7 @@ package cn.springboot.blog.dao;
 import cn.springboot.blog.entity.Articles;
 import java.util.*;
 
+import cn.springboot.blog.entity.TagCategory;
 import cn.springboot.blog.entity.UserAndArticle;
 import cn.springboot.blog.util.PageQueryUtil;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,6 +26,8 @@ public interface ArticlesMapper {
     List<UserAndArticle> getUser2Article(PageQueryUtil pageQueryUtil);
 
     List<Articles> getArticleByUid(PageQueryUtil pageQueryUtil);
+
+    List<Articles> getArticleLike(PageQueryUtil pageQueryUtil);
 
     UserAndArticle selectByPrimaryKey(@Param("aid") Integer aid);
 

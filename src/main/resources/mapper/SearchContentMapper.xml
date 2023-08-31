@@ -32,7 +32,10 @@
     order by priority desc
     limit 15
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    <select id="selectByContent"  resultMap="BaseResultMap">
+      select * from search_content where search_content = #{content}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from search_content
     where search_id = #{searchId,jdbcType=INTEGER}
   </delete>

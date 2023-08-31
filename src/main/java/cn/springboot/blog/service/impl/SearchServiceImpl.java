@@ -20,4 +20,31 @@ public class SearchServiceImpl implements SearchService {
     public List<SearchContent> getSearchSentence(String prefix) {
         return searchContentMapper.selectAllMatch(prefix);
     }
+
+    /**
+     * @param content
+     * @return
+     */
+    @Override
+    public SearchContent getSearchContent(String content) {
+        return searchContentMapper.selectByContent(content);
+    }
+
+    /**
+     * @param searchContent
+     * @return
+     */
+    @Override
+    public int updateSearchSentence(SearchContent searchContent) {
+        return searchContentMapper.updateByPrimaryKeySelective(searchContent);
+    }
+
+    /**
+     * @param searchContent
+     * @return
+     */
+    @Override
+    public int insertSearchSentence(SearchContent searchContent) {
+        return searchContentMapper.insertSelective(searchContent);
+    }
 }

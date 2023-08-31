@@ -2,18 +2,18 @@ package cn.springboot.blog.api.blog;
 
 import java.util.*;
 
+import cn.springboot.blog.api.blog.param.ConnectListParams;
 import cn.springboot.blog.entity.ConnectAndUser;
+import cn.springboot.blog.entity.ConnectList;
 import cn.springboot.blog.service.ConnectListService;
+import cn.springboot.blog.util.BeanUtil;
 import cn.springboot.blog.util.PageQueryUtil;
 import cn.springboot.blog.util.Result;
 import cn.springboot.blog.util.ResultGenerator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Api(value = "v1", tags = "联系列表相关接口")
@@ -47,5 +47,46 @@ public class ConnectListApi {
             return ResultGenerator.genFailResult(e.getMessage());
         }
         return ResultGenerator.genSuccessResult(resp);
+    }
+    @PostMapping("/connectList/startConnect")
+    public Result startConnect(@RequestBody ConnectListParams connectListParams){
+        ConnectList connectList = new ConnectList();
+        connectList = (ConnectList)BeanUtil.copyProperties(connectListParams, connectList);
+        Map<String,Object> map = new HashMap<>();
+        map.put("principal",connectListParams.getPrincipalUid());
+        map.put("page",1);
+        map.put("limit",15);
+        map.put("orderName","connect_date");
+//        对话已存在不执行插入
+        Integer id = connectListService.selectConnectIdByPrincipalAndSubordinate(connectListParams.getPrincipalUid(), connectListParams.getSubordinateUid());
+        if (Objects.isNull(id)) {
+            try {
+                connectListService.insertConnectList(connectList);
+//                获取返回用户
+                List<ConnectAndUser> ret = connectListService.getConnectList(new PageQueryUtil(map));
+                return ResultGenerator.genSuccessResult(ret);
+            }catch (Exception e){
+                return ResultGenerator.genFailResult(e.getMessage());
+            }
+        }
+       return ResultGenerator.genFailResult("对话已存在");
+    }
+
+    @PostMapping("/connectList/closeConnect")
+    public Result closeConnect(@RequestBody ConnectListParams connectListParams){
+        ConnectList connectList = new ConnectList();
+        connectList = (ConnectList)BeanUtil.copyProperties(connectListParams, connectList);
+//        对话已存在执行删除
+        Integer id = connectListService.selectConnectIdByPrincipalAndSubordinate(connectListParams.getPrincipalUid(), connectListParams.getSubordinateUid());
+        if (!Objects.isNull(id)) {
+            try {
+                connectListService.deleteByKey(connectList.getConnectId());
+//                获取返回用户
+                return ResultGenerator.genSuccessResult("操作成功");
+            }catch (Exception e){
+                return ResultGenerator.genFailResult(e.getMessage());
+            }
+        }
+        return ResultGenerator.genFailResult("对话不存在");
     }
 }

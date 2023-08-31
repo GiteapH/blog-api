@@ -39,20 +39,51 @@ public class TagCategoryServiceImpl implements TagCategoryService {
         return tagCategoryMapper.selectAllByCategoryByParentId(pid);
     }
 
+    /**
+     * @param tagName
+     * @return
+     */
+    @Override
+    public Integer getIDByName(String tagName) {
+
+        return tagCategoryMapper.selectByCategoryName(tagName);
+    }
+
     @Override
     public TagCategory getTagCategoryByCategoryId(Long id) {
         return tagCategoryMapper.selectByPrimaryKey(id);
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public List<TagCategory> getAll() {
+       return tagCategoryMapper.selectALL();
+    }
+
+    /**
+     * @param ids
+     * @return
+     */
+    @Override
+    public List<TagCategory> getTagCategoriesByIds(List<String> ids) {
+       return tagCategoryMapper.getTagCategoriesByIds(ids);
+    }
+
     @Override
     public void getSonCategories(Long id,List<innerTagCategory> innerTagCategory){
+
+//        保证标签间的链式、所以不需要剪枝
+
+//        根据父id获取他的子标签
         List<TagCategory> tagCategoryById = getTagCategoryByParentId(id);
+//        不存在子标签
         if(tagCategoryById.size() == 0)return;
         for(TagCategory tagCategory:tagCategoryById){
-            System.err.println(innerTagCategory);
             List<innerTagCategory> store = new ArrayList<>();
             innerTagCategory.add(new innerTagCategory(tagCategory.getCategoryName(),store,tagCategory.getCategoryId()));
-            System.err.println("fatherIdName:"+innerTagCategory+" sons:"+tagCategory);
+//            索取子标签的子标签
             getSonCategories(tagCategory.getCategoryId(), store);
         }
     }

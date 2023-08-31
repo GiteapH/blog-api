@@ -8,10 +8,7 @@ import cn.springboot.blog.util.Result;
 import cn.springboot.blog.util.ResultGenerator;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,5 +36,21 @@ public class TopicApi {
             return ResultGenerator.genFailResult(e.getMessage());
         }
         return ResultGenerator.genSuccessResult(topics);
+    }
+
+    @PostMapping("/topic/createTopic")
+    public Result createTopic(@RequestBody Topic topic){
+        Integer tid = topicService.getIdByTopic(topic.getTTopic());
+        System.err.println(tid);
+//        不存在创建
+        if(tid==null){
+           try {
+               Topic topicCreate = topicService.insertTopic(topic);
+               return ResultGenerator.genSuccessResult(topicCreate);
+           }catch (Exception e){
+               return ResultGenerator.genFailResult(e.getMessage());
+           }
+        }
+        return ResultGenerator.genFailResult("话题已存在");
     }
 }

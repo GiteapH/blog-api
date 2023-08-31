@@ -9,6 +9,8 @@ public interface TopicMapper {
     int deleteByPrimaryKey(Integer tid);
     List<Topic> selectAll(PageQueryUtil pageQueryUtil);
 
+    Integer selectOneByTTopic(String topic);
+
     int insert(Topic row);
 
     int insertSelective(Topic row);

@@ -15,7 +15,7 @@ public class Topic implements Serializable {
     private Integer tid;
 
     /**
-     * 话题内容
+     * 话题标题
      *
      * @mbg.generated
      */
@@ -49,6 +49,13 @@ public class Topic implements Serializable {
      */
     private Long tVisit;
 
+
+    /**
+     * 话题内容
+     *
+     * @mbg.generated
+     */
+    private String tContent;
 
     @Override
     public String toString() {

@@ -8,9 +8,10 @@
     <result column="t_uid" jdbcType="INTEGER" property="tUid" />
     <result column="t_partake" jdbcType="INTEGER" property="tPartake" />
     <result column="t_visit" jdbcType="BIGINT" property="tVisit" />
+    <result column="t_content" jdbcType="LONGVARCHAR" property="tContent" />
   </resultMap>
   <sql id="Base_Column_List">
-    tid, t_topic, t_date, t_uid, t_partake, t_visit
+    tid, t_topic, t_date, t_uid, t_partake, t_visit,t_content
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -26,6 +27,9 @@
     order by t_partake desc
     limit #{start},#{limit}
   </select>
+  <select id="selectOneByTTopic" resultType="java.lang.Integer">
+    select tid from topic where t_topic = #{topic}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from topic
     where tid = #{tid,jdbcType=INTEGER}
@@ -38,7 +42,7 @@
       #{tUid,jdbcType=INTEGER}, #{tPartake,jdbcType=INTEGER}, #{tVisit,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.Topic">
+  <insert id="insertSelective" parameterType="cn.springboot.blog.entity.Topic"  useGeneratedKeys="true" keyProperty="tid">
     insert into topic
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="tid != null">

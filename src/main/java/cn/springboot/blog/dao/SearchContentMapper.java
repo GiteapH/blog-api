@@ -13,6 +13,8 @@ public interface SearchContentMapper {
 
     SearchContent selectByPrimaryKey(Integer searchId);
 
+    SearchContent selectByContent(String content);
+
     int updateByPrimaryKeySelective(SearchContent row);
 
     int updateByPrimaryKeyWithBLOBs(SearchContent row);

@@ -35,6 +35,19 @@
     from tag_category
     where category_level = #{level,jdbcType=BIGINT}
   </select>
+    <select id="getTagCategoriesByIds" parameterType="list" resultMap="BaseResultMap">
+      select * from tag_category where category_id in
+      <foreach collection="ids" index="index" item="item"
+               open="("  separator="," close=")">
+        #{item}
+      </foreach>
+    </select>
+  <select id="selectByCategoryName" resultType="java.lang.Integer">
+    select category_id from tag_category where category_name = #{categoryName}
+  </select>
+  <select id="selectALL" resultMap="BaseResultMap">
+    select * from tag_category
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from tag_category
     where category_id = #{categoryId,jdbcType=BIGINT}

@@ -26,7 +26,6 @@ public class CommentsServiceImpl implements CommentsService {
         List<CommentAndUser> commentAndUsers;
         try{
             commentAndUsers = commentsMapper.selectAllByAidAndUid(aid,cType,orderColumn);
-            System.out.println(commentAndUsers);
         }catch (Exception e){
             e.printStackTrace();
            return null;

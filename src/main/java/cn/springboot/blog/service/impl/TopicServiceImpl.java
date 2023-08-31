@@ -31,4 +31,23 @@ public class TopicServiceImpl implements TopicService {
     public Topic getTopicById(Integer id) {
        return topicMapper.selectByPrimaryKey(id);
     }
+
+    /**
+     * @param topic
+     * @return
+     */
+    @Override
+    public Topic insertTopic(Topic topic) {
+        int i = topicMapper.insertSelective(topic);
+        return i==0?null:topic;
+    }
+
+    /**
+     * @param topic
+     * @return
+     */
+    @Override
+    public Integer getIdByTopic(String topic) {
+        return topicMapper.selectOneByTTopic(topic);
+    }
 }

@@ -30,7 +30,7 @@ public class Swagger2Config {
                 .required(false).build(); //header中的ticket参数非必填，传空也可以
         swaggerParams.add(tokenParam.build());    //根据每个方法名也知道当前方法在设置什么参数
 
-        return new Docket(DocumentationType.SWAGGER_2)
+        return new Docket(DocumentationType.SWAGGER_12)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("cn.springboot.blog.api"))// 修改为自己的 controller 包路径

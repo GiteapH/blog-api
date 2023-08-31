@@ -1,5 +1,6 @@
 package cn.springboot.blog.api.blog;
 
+import cn.springboot.blog.config.liner.tagCategoryDict;
 import cn.springboot.blog.entity.TagCategory;
 import cn.springboot.blog.service.TagCategoryService;
 import cn.springboot.blog.service.impl.TagCategoryServiceImpl;
@@ -29,7 +30,10 @@ public class TagCategoryApi {
     }
 
 
-
+    @GetMapping("/tag/map")
+    public Result  map(){
+        return ResultGenerator.genSuccessResult(tagCategoryDict.tagCategoryMap);
+    }
     @GetMapping("/tag/categoriesByLevel")
     public Result  categoriesByLevel(@RequestParam Integer level){
         List<TagCategory> tagCategoryByLevel = tagCategoryService.getTagCategoryByLevel(level);

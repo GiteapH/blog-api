@@ -119,6 +119,11 @@
     from articles
     where aid = #{aid,jdbcType=INTEGER}
   </select>
+
+  <select id="getArticleLike" resultMap="BaseResultMap" parameterType="map">
+    select * from articles where classSys like concat('%',#{classSys},'%') order by watched
+  </select>
+
   <delete id="deleteByPrimaryKey" parameterType="map">
     delete from articles
     where aid = #{aid,jdbcType=INTEGER}

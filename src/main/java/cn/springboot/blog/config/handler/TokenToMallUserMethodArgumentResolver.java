@@ -43,7 +43,7 @@ public class TokenToMallUserMethodArgumentResolver implements HandlerMethodArgum
         if (parameter.getParameterAnnotation(TokenToMallUser.class) instanceof TokenToMallUser) {
             UserInfoAndRegisterInfo mallUser = null;
             String token = webRequest.getHeader("token");
-            System.err.println(token);
+            System.err.println("token:"+token);
             if (null != token && !"".equals(token) && token.length() == Constants.TOKEN_LENGTH) {
                 UserToken userToken = UserTokenMapper.selectByToken(token);
                 System.out.println(userToken);

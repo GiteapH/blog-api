@@ -46,6 +46,14 @@ public class ArticleServiceImpl implements ArticleService {
         return articlesMapper.getClasssys();
     }
 
+    /**
+     * @return
+     */
+    @Override
+    public List<Articles> getUserLikeArticle(PageQueryUtil pageUtil) {
+        return articlesMapper.getArticleLike(pageUtil);
+    }
+
     public List<UserAndArticle> getUserAndArticle(PageQueryUtil pageQueryUtil) {
         return articlesMapper.getUser2Article(pageQueryUtil);
     }

@@ -14,6 +14,7 @@ public interface ArticleService {
     Articles getArticleByKey(Integer aid);
 
     List<Articles> getArticleTags();
+    List<Articles> getUserLikeArticle(PageQueryUtil pageQueryUtil);
 
     List<UserAndArticle> getUserAndArticle(PageQueryUtil pageQueryUtil);
 

@@ -9,4 +9,8 @@ public interface TopicService {
     List<Topic> selectAll(PageQueryUtil pageQueryUtil);
 
     Topic getTopicById(Integer id);
+
+    Topic insertTopic(Topic topic);
+
+    Integer getIdByTopic(String topic);
 }
